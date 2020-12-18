@@ -1,7 +1,8 @@
 const data = require('./data');
+const { ipcMain } = require('electron');
 
 module.exports = {
-    geraTrayTemplate(){
+    geraTrayTemplate(mainWindow){
         let template = [
             {
                 'label': 'Cursos'
@@ -16,12 +17,45 @@ module.exports = {
         cursos.forEach((curso) => {
             let menuItem = {
                 'label': curso,
-                type: 'radio'
+                type: 'radio',
+                click: () => {
+                    mainWindow.send('curso-trocado',curso);
+                }
+                
             }
-
             template.push(menuItem);
         });
 
+        return template;
+    },
+
+    geraMenuAplicacao(app){
+        let template =[
+            {
+                label: app.getName(),
+                submenu: [
+                    { role: 'quit', accelerator: 'CmdOrCtrl + Q' },
+                    { type: 'separator' },
+                    {
+                        label: "About",
+                        click: () => {
+                            ipcMain.emit('abrir-janela-sobre');
+                        },
+                        accelerator: 'CmdOrCtrl + I' 
+                        
+                    }
+                ]
+            },
+            {
+                label: 'Window',
+                submenu: [
+                    { role: 'minimize', accelerator: 'Alt + M'},
+                    { role: 'reload'},
+                    { role: 'toggledevtools'},
+                    { role: 'close' }
+                ]
+            }
+        ]
         return template;
     }
 }
